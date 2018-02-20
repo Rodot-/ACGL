@@ -1,17 +1,14 @@
 '''
-make a little curses game with a class that impliments key binding to callbacks
+A little curses game library
 '''
 
 import curses
 from functools import partial
 import random
 
-def _():
-	pass
-
 
 class App(object):
-	'''implimented as a finite state machine'''
+	'''Main game application, manages the eventloop'''
 	def __init__(self):
 
 		self.state_bindings = {}
@@ -26,17 +23,6 @@ class App(object):
 		with self as stdscr:
 			while self.running:
 				self.state_bindings[self.state]()
-					
-	def chain_state(self, new, signal=None):
-		'''returns a decorator to set the next state of a function based on a signal'''
-		def _chain_state_decorator(func):
-			def _wrapper(*args, **kwargs):
-
-				sig = func(*args, **kwargs)
-				if sig == signal:
-					self.state = new
-			return _wrapper
-		return _chain_state_decorator
 
 	def reset(self):
 		
@@ -50,13 +36,13 @@ class App(object):
 
 	def bind_key(self, key, func):
 		'''abstraction so we convert the key to its ordinal'''
-		if type(key) is str:
+		if type(key) is str: # in case it's a special curses type
 			self.key_bindings[ord(key)] = func
 		else:
 			self.key_bindings[key] = func
 
 	def bind(self, state, func):
-
+		
 		self.state_bindings[state] = func
 
 	def unbind(self, state):
@@ -90,7 +76,7 @@ class App(object):
 		curses.napms(delay)
 
 class Point:
-
+	'''Basic 2D vector class, just for convienience'''
 	def __init__(self, x, y):
 
 		self.x = x
@@ -117,6 +103,7 @@ class Point:
 
 
 class Sprite(object):
+	'''basic sprite class for abstraction'''
 
 	def __init__(self, image = ''):
 
@@ -212,7 +199,7 @@ class MultiSprite(Sprite):
 		self.child.set_pos((self.pos.x, self.pos.y))
 
 class PhysicsEngine:
-
+	'''Manages Basic Game Physics such as friction or gravity'''
 	def __init__(self, g = -10, dt=0.05, mu_k = 0.4, **kwargs):
 		'''first kwarg will be g'''
 		self.g = g
